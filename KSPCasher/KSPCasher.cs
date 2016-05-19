@@ -81,7 +81,7 @@ namespace KSPCasher
         public static double ScienceBuyMultiplier = 10000;
         public static double ScienceSellMultiplier = 10000;
 
-        private bool CasherDebug = true;
+        private bool CasherDebug = false;
 
         internal KSPCasher()
         {
