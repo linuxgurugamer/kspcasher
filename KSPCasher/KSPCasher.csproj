@@ -49,7 +49,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FrameworkExt\Extensions.cs" />
     <Compile Include="KSPCasher.cs" />
+    <Compile Include="FrameworkExt\KSPDateStructure.cs" />
+    <Compile Include="FrameworkExt\KSPDateTime.cs" />
+    <Compile Include="FrameworkExt\KSPTimeSpan.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
