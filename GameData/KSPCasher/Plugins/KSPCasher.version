@@ -1,7 +1,7 @@
 {
     "NAME":"KSPCasher",
     "URL":"https://raw.githubusercontent.com/a-stat/kspcasher/master/KSPCasher.version",
-    "DOWNLOAD":"https://github.com/a-stat/kspcasher/releases/download/0.2.0/KSPCasher_0.2.0.zip",
+    "DOWNLOAD":"https://github.com/a-stat/kspcasher/releases/download/0.2.1/KSPCasher_0.2.1.zip",
     "GITHUB":
     {
         "USERNAME":"a-stat",
@@ -12,7 +12,7 @@
     {
         "MAJOR":0,
         "MINOR":2,
-        "PATCH":0,
+        "PATCH":1,
         "BUILD":0
     },
     "KSP_VERSION":

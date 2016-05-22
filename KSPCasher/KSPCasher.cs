@@ -332,7 +332,7 @@ namespace KSPCasher
 
             double time = Planetarium.GetUniversalTime();
             KSPDateTime dt = new KSPDateTime(time);
-            if (dt.Hour != 4) return; //We do budgets at 4am (so you can warp to next morning for it)
+            if (TimeWarp.CurrentRate < 1001 && dt.Hour < 4) return; //We do budgets at 4am (so you can warp to next morning for it)
             string budgetCode = dt.Year.ToString() + dt.Month.ToString() + dt.Day.ToString();
             
             if(budgetCode != LastBudget) {
