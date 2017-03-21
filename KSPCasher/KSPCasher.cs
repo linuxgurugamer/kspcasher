@@ -33,7 +33,7 @@ namespace KSPCasher
             if (n != null)
             {
                 string param = n.GetValue("LastBudget");
-                if(param != null)
+                if (param != null)
                     KSPCasher.instance.LastBudget = param;
 
                 param = n.GetValue("Multiplier");
@@ -47,31 +47,12 @@ namespace KSPCasher
                 param = n.GetValue("SciSell");
                 if (param != null)
                     KSPCasher.ScienceSellMultiplier = double.Parse(param);
-            }            
+            }
         }
     }
 
-    [KSPAddon(KSPAddon.Startup.Flight, false)]
-    public class CasherFlight : KSPCasher
-    {    
-    }
 
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
-    public class CasherSC : KSPCasher
-    {
-    }
-
-    [KSPAddon(KSPAddon.Startup.TrackingStation, false)]
-    public class CasherTS : KSPCasher
-    {
-    }
-
-    [KSPAddon(KSPAddon.Startup.EditorAny, false)]
-    public class CasherEditor : KSPCasher
-    {
-    }
-    
-    
     public class KSPCasher : MonoBehaviour
     {
         public static KSPCasher instance;
@@ -85,12 +66,13 @@ namespace KSPCasher
 
         internal KSPCasher()
         {
-            instance = this;            
+            instance = this;
         }
 
         public void Start()
         {
-
+            if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
+                return;
             GameEvents.OnTechnologyResearched.Add(TechUnlockEvent);
             GameEvents.onGUIRnDComplexDespawn.Add(TechDisableEvent);
             GameEvents.onGUIRnDComplexSpawn.Add(HideGUI);
@@ -106,6 +88,8 @@ namespace KSPCasher
 
         public void OnDisable()
         {
+            if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
+                return;
             GameEvents.OnTechnologyResearched.Remove(TechUnlockEvent);
             GameEvents.onGUIRnDComplexDespawn.Remove(TechDisableEvent);
             GameEvents.onGUIRnDComplexSpawn.Remove(HideGUI);
@@ -146,10 +130,15 @@ namespace KSPCasher
 
         private void OnGUIApplicationLauncherReady()
         {
-            if (ToolbarButton == null)
+            if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
             {
-                ToolbarButton = ApplicationLauncher.Instance.AddModApplication(GUISwitch, GUISwitch, null, null, null, null, ApplicationLauncher.AppScenes.SPACECENTER,
-                                                                                GameDatabase.Instance.GetTexture("KSPCasher/Icon", false));
+                if (ToolbarButton == null)
+                {
+                    ToolbarButton = ApplicationLauncher.Instance.AddModApplication(GUISwitch, GUISwitch,
+                                    null, null, null, null,
+                                    ApplicationLauncher.AppScenes.SPACECENTER,
+                                    GameDatabase.Instance.GetTexture("KSPCasher/Icon", false));
+                }
             }
         }
 
@@ -169,10 +158,12 @@ namespace KSPCasher
                 ShowGUI = !ShowGUI;
             }
         }
-        
+
         //OnDraw Shows the MainGUI Window
         private void OnGUI()
         {
+            if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
+                return;
             GUI.skin.window.richText = true;
             if (ShowGUI == true)
             {
@@ -205,7 +196,7 @@ namespace KSPCasher
             double time = Planetarium.GetUniversalTime();
             KSPDateTime dt = new KSPDateTime(time);
             KSPDateTime next = dt.AddDays(1);
-            next = next.AddHours(4-next.Hour);
+            next = next.AddHours(4 - next.Hour);
             next = next.AddMinutes(-next.Minute);
             next = next.AddSeconds(-next.Second);
 
@@ -220,7 +211,7 @@ namespace KSPCasher
                 int temp = 0;
                 if (int.TryParse(text, out temp))
                 {
-                    BudgetMultiplier = Mathf.Clamp(temp,0,1000000);
+                    BudgetMultiplier = Mathf.Clamp(temp, 0, 1000000);
                 }
                 else if (text == "") BudgetMultiplier = 10;
                 GUILayout.EndHorizontal();
@@ -306,8 +297,8 @@ namespace KSPCasher
 
         public void TechDisableEvent()
         {
-            Log("Giving back " +giveBack.ToString() + " sci");
-            ResearchAndDevelopment.Instance.AddScience(giveBack,TransactionReasons.None);
+            Log("Giving back " + giveBack.ToString() + " sci");
+            ResearchAndDevelopment.Instance.AddScience(giveBack, TransactionReasons.None);
             giveBack = 0;
             foreach (RDTech item in relock)
             {
@@ -324,7 +315,7 @@ namespace KSPCasher
             GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
         }
 
-        public string LastBudget = "";        
+        public string LastBudget = "";
 
         public void Update()
         {
@@ -334,8 +325,9 @@ namespace KSPCasher
             KSPDateTime dt = new KSPDateTime(time);
             if (TimeWarp.CurrentRate < 1001 && dt.Hour < 4) return; //We do budgets at 4am (so you can warp to next morning for it)
             string budgetCode = dt.Year.ToString() + dt.Month.ToString() + dt.Day.ToString();
-            
-            if(budgetCode != LastBudget) {
+
+            if (budgetCode != LastBudget)
+            {
                 Log("Doing budget " + budgetCode);
                 LastBudget = budgetCode;
                 if (CasherDebug)
@@ -345,10 +337,11 @@ namespace KSPCasher
                 {
                     ScreenMessages.PostScreenMessage("[Casher] Budget received: " + budget.ToString("C"));
                     Funding.Instance.AddFunds(budget, TransactionReasons.None);
-                }else
+                }
+                else
                 {
                     ScreenMessages.PostScreenMessage("[Casher] No budget received, you need to work on your reputation.");
-                }         
+                }
             }
         }
 
@@ -367,13 +360,14 @@ namespace KSPCasher
 
         private void Log(string msg)
         {
-            if(CasherDebug)
+            if (CasherDebug)
                 Debug.Log("[Casher] " + msg);
         }
         int giveBack = 0;
         List<RDTech> relock = new List<RDTech>();
         bool skip = false;
-        public void TechUnlockEvent(GameEvents.HostTargetAction<RDTech, RDTech.OperationResult> ev) {
+        public void TechUnlockEvent(GameEvents.HostTargetAction<RDTech, RDTech.OperationResult> ev)
+        {
             if (skip)
             {
                 skip = false;
@@ -384,8 +378,8 @@ namespace KSPCasher
             int cost = ev.host.scienceCost * 10000;
 
             if (Funding.Instance.Funds >= cost) canAfford = true;
-            
-            if(ev.target == RDTech.OperationResult.Successful)
+
+            if (ev.target == RDTech.OperationResult.Successful)
             {
                 //Always give the science back
                 giveBack += ev.host.scienceCost;
@@ -402,16 +396,17 @@ namespace KSPCasher
                     ev.host.UnlockTech(true);
                     ProtoTechNode protoNode = ResearchAndDevelopment.Instance.GetTechState(ev.host.techID);
                     protoNode.state = RDTech.State.Available;
-                    ResearchAndDevelopment.Instance.SetTechState(ev.host.techID, protoNode);                                        
-                }                    
-            }else
+                    ResearchAndDevelopment.Instance.SetTechState(ev.host.techID, protoNode);
+                }
+            }
+            else
             {
                 Log("Cannot afford " + cost.ToString() + " funds");
                 ScreenMessages.PostScreenMessage("[Casher] You cannot afford this node, it costs " + cost.ToString("C"));
                 if (ev.target == RDTech.OperationResult.Successful)
                 {
                     relock.Add(ev.host);
-                }                    
+                }
             }
         }
     }

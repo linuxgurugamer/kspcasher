@@ -410,6 +410,7 @@ namespace KSPPluginFramework
                         format = format.Substring(0, mIndex) + Minute.ToString("D" + mLength.Clamp(1, KSPDateStructure.MinutesPerHour.ToString().Length)) + format.Substring(mIndex + mLength);
                         break;
                     case 's':
+                        
                         format = format.Substring(0, mIndex) + Second.ToString("D" + mLength.Clamp(1, KSPDateStructure.SecondsPerMinute.ToString().Length)) + format.Substring(mIndex + mLength);
                         break;
 
@@ -502,7 +503,7 @@ namespace KSPPluginFramework
         /// <returns>A System.DateTime equal to the date and time represented by this instance minus the date and time represented by value.</returns>
         public KSPDateTime Subtract(KSPDateTime value)
         {
-            return new KSPDateTime(UT - value.UT);
+            return new KSPDateTime(Math.Round(UT - value.UT));
         }
         /// <summary>Subtracts the specified duration from this instance.</summary>
         /// <param name="value">An instance of System.TimeSpan.</param>
