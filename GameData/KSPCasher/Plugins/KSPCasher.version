@@ -1,36 +1,36 @@
 {
-    "NAME":"KSPCasher",
-    "URL":"https://raw.githubusercontent.com/a-stat/kspcasher/master/KSPCasher.version",
-    "DOWNLOAD":"https://github.com/a-stat/kspcasher/releases/download/0.2.1/KSPCasher_0.2.1.zip",
+    "NAME":"KSPCasher: Recashed",
+    "URL":"https://github.com/severedsolo/kspcasher/blob/master/KSPCasher.version,
+    "DOWNLOAD":"https://github.com/severedsolo/kspcasher/releases",
     "GITHUB":
     {
-        "USERNAME":"a-stat",
+        "USERNAME":"severedsolo",
         "REPOSITORY":"kspcasher",
         "ALLOW_PRE_RELEASE":false,
     },
     "VERSION":
     {
-        "MAJOR":0,
-        "MINOR":2,
-        "PATCH":1,
+        "MAJOR":1,
+        "MINOR":0,
+        "PATCH":0,
         "BUILD":0
     },
     "KSP_VERSION":
     {
         "MAJOR":1,
-        "MINOR":1,
+        "MINOR":2,
         "PATCH":2
     },
     "KSP_VERSION_MIN":
     {
         "MAJOR":1,
-        "MINOR":1,
-        "PATCH":0
+        "MINOR":2,
+        "PATCH":2
     },
     "KSP_VERSION_MAX":
     {
         "MAJOR":1,
-        "MINOR":1,
+        "MINOR":2,
         "PATCH":2
     }
 } 

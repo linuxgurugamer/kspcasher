@@ -10,84 +10,26 @@ using KSP.UI.Screens;
 
 namespace KSPCasher
 {
-    public class KSPCasherData : ScenarioModule
-    {
-        public override void OnSave(ConfigNode node)
-        {
-            base.OnSave(node);
-
-            ConfigNode n = new ConfigNode("KSPCasher");
-            n.SetValue("LastBudget", KSPCasher.instance.LastBudget);
-            n.SetValue("Multiplier", KSPCasher.BudgetMultiplier.ToString());
-            n.SetValue("SciBuy", KSPCasher.ScienceBuyMultiplier.ToString());
-            n.SetValue("SciSell", KSPCasher.ScienceSellMultiplier.ToString());
-            node.AddNode(n);
-        }
-
-        public override void OnLoad(ConfigNode node)
-        {
-            base.OnLoad(node);
-
-            var n = node.GetNode("KSPCasher");
-
-            if (n != null)
-            {
-                string param = n.GetValue("LastBudget");
-                if(param != null)
-                    KSPCasher.instance.LastBudget = param;
-
-                param = n.GetValue("Multiplier");
-                if (param != null)
-                    KSPCasher.BudgetMultiplier = double.Parse(param);
-
-                param = n.GetValue("SciBuy");
-                if (param != null)
-                    KSPCasher.ScienceBuyMultiplier = double.Parse(param);
-
-                param = n.GetValue("SciSell");
-                if (param != null)
-                    KSPCasher.ScienceSellMultiplier = double.Parse(param);
-            }            
-        }
-    }
-
-    [KSPAddon(KSPAddon.Startup.Flight, false)]
-    public class CasherFlight : KSPCasher
-    {    
-    }
-
-    [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
-    public class CasherSC : KSPCasher
-    {
-    }
-
-    [KSPAddon(KSPAddon.Startup.TrackingStation, false)]
-    public class CasherTS : KSPCasher
-    {
-    }
-
-    [KSPAddon(KSPAddon.Startup.EditorAny, false)]
-    public class CasherEditor : KSPCasher
-    {
-    }
+    [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
     
     
     public class KSPCasher : MonoBehaviour
     {
         public static KSPCasher instance;
         ApplicationLauncherButton ToolbarButton;
-
         public static double BudgetMultiplier = 10;
         public static double ScienceBuyMultiplier = 10000;
         public static double ScienceSellMultiplier = 10000;
-
         private bool CasherDebug = false;
 
         internal KSPCasher()
         {
             instance = this;            
         }
-
+        private void Awake()
+        {
+            DontDestroyOnLoad(this);
+        }
         public void Start()
         {
 
@@ -95,13 +37,41 @@ namespace KSPCasher
             GameEvents.onGUIRnDComplexDespawn.Add(TechDisableEvent);
             GameEvents.onGUIRnDComplexSpawn.Add(HideGUI);
             GameEvents.onGUIApplicationLauncherReady.Add(OnGUIApplicationLauncherReady);
-
+            GameEvents.onGameStateSave.Add(onGameStateSave);
+            GameEvents.onGameStateLoad.Add(onGameStateLoad);
             var game = HighLogic.CurrentGame;
-            ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(KSPCasherData).Name);
-            if (psm == null)
+        }
+
+        private void onGameStateLoad(ConfigNode node)
+        {
+            ConfigNode n = new ConfigNode();
+            if (!n.TryGetNode("KSPCasher", ref n)) return;
+            string loaded = null;
+            if (!n.TryGetValue("LastBudget", ref LastBudget)) Debug.Log("[KSPCasher]: Failed to load LastBudget!");
+            if (!n.TryGetValue("Multiplier", ref loaded)) Debug.Log("[KSPCasher]: Failed to load Multiplier!");
+            else Double.TryParse(loaded, out BudgetMultiplier);
+            if (!n.TryGetValue("SciBuy", ref loaded)) Debug.Log("[KSPCasher]: Failed to load SciBuy!");
+            else Double.TryParse(loaded, out ScienceBuyMultiplier);
+            if (!n.TryGetValue("SciSell", ref loaded)) Debug.Log("[KSPCasher]: Failed to load SciSell!");
+            else Double.TryParse(loaded, out ScienceSellMultiplier);
+            if (n.TryGetValue("Debug", ref loaded))
             {
-                psm = game.AddProtoScenarioModule(typeof(KSPCasherData), GameScenes.SPACECENTER);
+                if (loaded == "true") CasherDebug = true;
             }
+            Debug.Log("[KSPCasher]: Finished loading data");
+        }
+
+        private void onGameStateSave(ConfigNode node)
+        {
+            ConfigNode n = new ConfigNode();
+            if (!node.TryGetNode("KSPCasher", ref n)) node.AddNode("KSPCasher");
+            n = node.GetNode("KSPCasher");
+            n.SetValue("LastBudget", instance.LastBudget, true);
+            n.SetValue("Multiplier", BudgetMultiplier.ToString(), true);
+            n.SetValue("SciBuy", ScienceBuyMultiplier.ToString(), true);
+            n.SetValue("SciSell", ScienceSellMultiplier.ToString(), true);
+            n.SetValue("Debug", CasherDebug, true);
+            Debug.Log("[KSPCasher]: Saved all data");
         }
 
         public void OnDisable()
@@ -112,6 +82,9 @@ namespace KSPCasher
             GameEvents.onGUIApplicationLauncherReady.Remove(OnGUIApplicationLauncherReady);
             ApplicationLauncher.Instance.RemoveModApplication(ToolbarButton);
             GameEvents.onGUIApplicationLauncherReady.Remove(OnGUIApplicationLauncherReady);
+            GameEvents.onGameStateLoad.Remove(onGameStateLoad);
+            GameEvents.onGameStateSave.Remove(onGameStateSave);
+            ShowGUI = false;
         }
 
         #region GUI
@@ -339,15 +312,15 @@ namespace KSPCasher
                 Log("Doing budget " + budgetCode);
                 LastBudget = budgetCode;
                 if (CasherDebug)
-                    ScreenMessages.PostScreenMessage("[Casher] " + budgetCode);
+                    ScreenMessages.PostScreenMessage("[KSPCasher]: " + budgetCode);
                 double budget = (Reputation.Instance.reputation * BudgetMultiplier);
                 if (budget > 0)
                 {
-                    ScreenMessages.PostScreenMessage("[Casher] Budget received: " + budget.ToString("C"));
+                    ScreenMessages.PostScreenMessage("[KSPCasher]: Budget received: " + budget.ToString("C"));
                     Funding.Instance.AddFunds(budget, TransactionReasons.None);
                 }else
                 {
-                    ScreenMessages.PostScreenMessage("[Casher] No budget received, you need to work on your reputation.");
+                    ScreenMessages.PostScreenMessage("[KSPCasher]: No budget received, you need to work on your reputation.");
                 }         
             }
         }
@@ -358,7 +331,7 @@ namespace KSPCasher
             double bonus = (double)amt * ScienceSellMultiplier;
             if (bonus > 0)
             {
-                ScreenMessages.PostScreenMessage("[Casher] Science Bonus: " + bonus.ToString("C"));
+                ScreenMessages.PostScreenMessage("[KSPCasher]: Science Bonus: " + bonus.ToString("C"));
                 Funding.Instance.AddFunds(bonus, TransactionReasons.None);
                 //And take the science
                 ResearchAndDevelopment.Instance.AddScience(-amt, TransactionReasons.None);
@@ -368,7 +341,7 @@ namespace KSPCasher
         private void Log(string msg)
         {
             if(CasherDebug)
-                Debug.Log("[Casher] " + msg);
+                Debug.Log("[KSPCasher]: " + msg);
         }
         int giveBack = 0;
         List<RDTech> relock = new List<RDTech>();
@@ -407,7 +380,7 @@ namespace KSPCasher
             }else
             {
                 Log("Cannot afford " + cost.ToString() + " funds");
-                ScreenMessages.PostScreenMessage("[Casher] You cannot afford this node, it costs " + cost.ToString("C"));
+                ScreenMessages.PostScreenMessage("[KSPCasher]: You cannot afford this node, it costs " + cost.ToString("C"));
                 if (ev.target == RDTech.OperationResult.Successful)
                 {
                     relock.Add(ev.host);
