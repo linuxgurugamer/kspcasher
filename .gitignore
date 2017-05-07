@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #Autosave files
 *~
 
@@ -40,3 +41,8 @@ Thumbs.db
 *.dotCover
 *.dll
 *.pdb
+=======
+/KSPCasher/obj
+/KSPCasher/bin
+*.dll
+>>>>>>> af4a396ffd4fda2d2183146291f263113166f20c
