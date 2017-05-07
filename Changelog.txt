@@ -1,0 +1,6 @@
+0.2.3
+	Fixed ScenarioModule to properly save data
+	Merged in some code from @severdsolo to load one instead of every scene
+	Fixed window not going away when entering other scenes
+	Fixed bug where cash was added every scene change
+	Moved ScenarioModule into it's own file

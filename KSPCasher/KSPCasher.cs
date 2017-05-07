@@ -10,86 +10,15 @@ using KSP.UI.Screens;
 
 namespace KSPCasher
 {
-    [KSPScenario(ScenarioCreationOptions.AddToNewCareerGames | ScenarioCreationOptions.AddToExistingCareerGames, GameScenes.SPACECENTER)]
-    public class KSPCasherData : ScenarioModule
-    {
-        static public KSPCasherData Instance;
-
-        [KSPField(isPersistant = true)]
-        public string LastBudget = "";
-
-        [KSPField(isPersistant = true)]
-        public double BudgetMultiplier = 10;
-
-        [KSPField(isPersistant = true)]
-        public double ScienceBuyMultiplier = 10000;
-
-        [KSPField(isPersistant = true)]
-        public double ScienceSellMultiplier = 10000f;
-
-        override public void OnAwake()
-        {
-            Instance = this;
-        }
-#if true
-        public override void OnSave(ConfigNode node)
-        {
-            Debug.Log("KSPCasherData.OnSave");
-
-
-
-            ConfigNode n = new ConfigNode("KSPCasher");
-            n.SetValue("LastBudget", LastBudget);
-            n.SetValue("Multiplier", BudgetMultiplier.ToString());
-            n.SetValue("SciBuy", ScienceBuyMultiplier.ToString());
-            n.SetValue("SciSell", ScienceSellMultiplier.ToString());
-            node.AddNode(n);
-           // base.OnSave(node);
-        }
-#if false
-        public override void OnLoad(ConfigNode node)
-        {
-            Debug.Log("KSPCasherData.OnLoad");
-            base.OnLoad(node);
-
-            KSPCasher.instance.LastBudget = LastBudget;
-            KSPCasher.KSPCasherData.Instance.BudgetMultiplier = BudgetMultiplier;
-
-            var n = node.GetNode("KSPCasher");
-
-            if (n != null)
-            {
-                string param = n.GetValue("LastBudget");
-                if (param != null)
-                    KSPCasher.instance.LastBudget = param;
-
-                param = n.GetValue("Multiplier");
-                if (param != null)
-                    KSPCasher.KSPCasherData.Instance.BudgetMultiplier = double.Parse(param);
-
-                param = n.GetValue("SciBuy");
-                if (param != null)
-                    KSPCasher.KSPCasherData.Instance.ScienceBuyMultiplier = double.Parse(param);
-
-                param = n.GetValue("SciSell");
-                if (param != null)
-                    KSPCasher.KSPCasherData.Instance.ScienceSellMultiplier = double.Parse(param);
-            }
-        }
-#endif
-#endif
-    }
-
-
-//    [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
+   
     [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
     public class KSPCasher : MonoBehaviour
     {
         public static KSPCasher instance;
         ApplicationLauncherButton ToolbarButton;
-        //public static double KSPCasherData.Instance.BudgetMultiplier = 10;
-        //public static double KSPCasherData.Instance.ScienceBuyMultiplier = 10000;
-        //public static double KSPCasherData.Instance.ScienceSellMultiplier = 10000;
+        public static double BudgetMultiplier = 10;
+        public static double ScienceBuyMultiplier = 10000;
+        public static double ScienceSellMultiplier = 10000;
         private bool CasherDebug = false;
 
         internal KSPCasher()
@@ -150,16 +79,7 @@ namespace KSPCasher
         {
             if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
                 return;
-            //GameEvents.OnTechnologyResearched.Remove(TechUnlockEvent);
-            //GameEvents.onGUIRnDComplexDespawn.Remove(TechDisableEvent);
-            //GameEvents.onGUIRnDComplexSpawn.Remove(HideGUI);
-            //GameEvents.onGUIApplicationLauncherReady.Remove(OnGUIApplicationLauncherReady);
-            //ApplicationLauncher.Instance.RemoveModApplication(ToolbarButton);
-            //GameEvents.onGUIApplicationLauncherReady.Remove(OnGUIApplicationLauncherReady);
-#if false
-            GameEvents.onGameStateLoad.Remove(onGameStateLoad);
-            GameEvents.onGameStateSave.Remove(onGameStateSave);
-#endif
+
             ShowGUI = false;
         }
 
@@ -256,8 +176,8 @@ namespace KSPCasher
         //MainGUI Window Content
         private void MainGUI(int WindowID)
         {
-            double budget = (Reputation.Instance.reputation * KSPCasherData.Instance.BudgetMultiplier);
-            double bonus = (ResearchAndDevelopment.Instance.Science * KSPCasherData.Instance.ScienceSellMultiplier);
+            double budget = (Reputation.Instance.reputation * BudgetMultiplier);
+            double bonus = (ResearchAndDevelopment.Instance.Science * ScienceSellMultiplier);
 
             double time = Planetarium.GetUniversalTime();
             KSPDateTime dt = new KSPDateTime(time);
@@ -273,35 +193,35 @@ namespace KSPCasher
             {
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Budget Multiplier", headerText, GUILayout.Width(150));
-                string text = GUILayout.TextField(KSPCasherData.Instance.BudgetMultiplier.ToString());
+                string text = GUILayout.TextField(BudgetMultiplier.ToString());
                 int temp = 0;
                 if (int.TryParse(text, out temp))
                 {
-                    KSPCasherData.Instance.BudgetMultiplier = Mathf.Clamp(temp, 0, 1000000);
+                    BudgetMultiplier = Mathf.Clamp(temp, 0, 1000000);
                 }
-                else if (text == "") KSPCasherData.Instance.BudgetMultiplier = 10;
+                else if (text == "") BudgetMultiplier = 10;
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Science Bonus", headerText, GUILayout.Width(150));
-                text = GUILayout.TextField(KSPCasherData.Instance.ScienceSellMultiplier.ToString());
+                text = GUILayout.TextField(ScienceSellMultiplier.ToString());
                 temp = 0;
                 if (int.TryParse(text, out temp))
                 {
-                    KSPCasherData.Instance.ScienceSellMultiplier = Mathf.Clamp(temp, 0, 1000000);
+                    ScienceSellMultiplier = Mathf.Clamp(temp, 0, 1000000);
                 }
-                else if (text == "") KSPCasherData.Instance.ScienceSellMultiplier = 10000;
+                else if (text == "") ScienceSellMultiplier = 10000;
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label("Tech Multiplier", headerText, GUILayout.Width(150));
-                text = GUILayout.TextField(KSPCasherData.Instance.ScienceBuyMultiplier.ToString());
+                text = GUILayout.TextField(ScienceBuyMultiplier.ToString());
                 temp = 0;
                 if (int.TryParse(text, out temp))
                 {
-                    KSPCasherData.Instance.ScienceBuyMultiplier = Mathf.Clamp(temp, 0, 1000000);
+                    ScienceBuyMultiplier = Mathf.Clamp(temp, 0, 1000000);
                 }
-                else if (text == "") KSPCasherData.Instance.ScienceBuyMultiplier = 10000;
+                else if (text == "") ScienceBuyMultiplier = 10000;
                 GUILayout.EndHorizontal();
 
                 if (GUILayout.Button("< Back"))
@@ -381,24 +301,24 @@ namespace KSPCasher
             GamePersistence.SaveGame("persistent", HighLogic.SaveFolder, SaveMode.OVERWRITE);
         }
 
-        //public string LastBudget = "";
+        public static string LastBudget = "";
 
         public void Update()
         {
-            if (KSPCasherData.Instance.BudgetMultiplier <= 0 || KSPCasherData.Instance.BudgetMultiplier > 1000000) return; //overflow protection
+            if (BudgetMultiplier <= 0 || BudgetMultiplier > 1000000) return; //overflow protection
 
             double time = Planetarium.GetUniversalTime();
             KSPDateTime dt = new KSPDateTime(time);
             if (TimeWarp.CurrentRate < 1001 && dt.Hour < 4) return; //We do budgets at 4am (so you can warp to next morning for it)
             string budgetCode = dt.Year.ToString() + dt.Month.ToString() + dt.Day.ToString();
 
-            if (budgetCode != KSPCasherData.Instance.LastBudget)
+            if (budgetCode != LastBudget)
             {
                 Log("Doing budget " + budgetCode);
-                KSPCasherData.Instance.LastBudget = budgetCode;
+                LastBudget = budgetCode;
                 if (CasherDebug)
                     ScreenMessages.PostScreenMessage("[KSPCasher]: " + budgetCode);
-                double budget = (Reputation.Instance.reputation * KSPCasherData.Instance.BudgetMultiplier);
+                double budget = (Reputation.Instance.reputation * BudgetMultiplier);
                 if (budget > 0)
                 {
                     ScreenMessages.PostScreenMessage("[KSPCasher]: Budget received: " + budget.ToString("C"));
@@ -414,7 +334,7 @@ namespace KSPCasher
         private void CashOutScience(float amt)
         {
             if (ResearchAndDevelopment.Instance.Science < amt) amt = ResearchAndDevelopment.Instance.Science;
-            double bonus = (double)amt * KSPCasherData.Instance.ScienceSellMultiplier;
+            double bonus = (double)amt * ScienceSellMultiplier;
             if (bonus > 0)
             {
                 ScreenMessages.PostScreenMessage("[KSPCasher]: Science Bonus: " + bonus.ToString("C"));
@@ -429,6 +349,7 @@ namespace KSPCasher
             if(CasherDebug)
                 Debug.Log("[KSPCasher]: " + msg);
         }
+
         int giveBack = 0;
         List<RDTech> relock = new List<RDTech>();
         bool skip = false;

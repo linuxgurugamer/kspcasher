@@ -40,6 +40,7 @@
     <Compile Include="FrameworkExt\KSPDateStructure.cs" />
     <Compile Include="FrameworkExt\KSPDateTime.cs" />
     <Compile Include="FrameworkExt\KSPTimeSpan.cs" />
+    <Compile Include="KSPCasherData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
