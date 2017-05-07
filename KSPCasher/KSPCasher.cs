@@ -45,7 +45,7 @@ namespace KSPCasher
         private void onGameStateLoad(ConfigNode node)
         {
             ConfigNode n = new ConfigNode();
-            if (!n.TryGetNode("KSPCasher", ref n)) return;
+            if (!node.TryGetNode("KSPCasher", ref n)) return;
             string loaded = null;
             if (!n.TryGetValue("LastBudget", ref LastBudget)) Debug.Log("[KSPCasher]: Failed to load LastBudget!");
             if (!n.TryGetValue("Multiplier", ref loaded)) Debug.Log("[KSPCasher]: Failed to load Multiplier!");
