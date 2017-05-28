@@ -5,14 +5,14 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KSPCasher", "KSPCasher\KSPCasher.csproj", "{03A555DE-65F4-44A2-AAFA-D446AF34C965}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionFolder", "{D23A73F9-22E6-4D78-997A-46BC6C6FCBED}"
-	ProjectSection(SolutionItems) = preProject
-		KSPCasher.version = KSPCasher.version
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D14ECB75-8C51-4847-9361-40E14F49A1F2}"
 	ProjectSection(SolutionItems) = preProject
+		KSPCasher\buildRelease.bat = KSPCasher\buildRelease.bat
 		Changelog.txt = Changelog.txt
+		KSPCasher\deploy.bat = KSPCasher\deploy.bat
+		KSPCasher.version = KSPCasher.version
+		License.txt = License.txt
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global

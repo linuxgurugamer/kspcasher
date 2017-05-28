@@ -4,3 +4,6 @@
 	Fixed window not going away when entering other scenes
 	Fixed bug where cash was added every scene change
 	Moved ScenarioModule into it's own file
+
+0.2.4
+	Updated for 1.3
