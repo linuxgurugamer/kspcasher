@@ -362,7 +362,7 @@ namespace KSPCasher
             }
             bool canAfford = false;
 
-            int cost = ev.host.scienceCost * 10000;
+            int cost = ev.host.scienceCost * ScienceBuyMultiplier;
 
             if (Funding.Instance.Funds >= cost) canAfford = true;
 
