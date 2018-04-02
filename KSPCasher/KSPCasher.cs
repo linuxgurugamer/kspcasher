@@ -5,14 +5,18 @@ using KSPPluginFramework;
 using UnityEngine;
 using KSP.UI.Screens;
 
+using ClickThroughFix;
+using ToolbarControl_NS;
+
 namespace KSPCasher
 {
-   
+
     [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
     public class KSPCasher : MonoBehaviour
     {
         public static KSPCasher instance;
-        ApplicationLauncherButton ToolbarButton;
+        //ApplicationLauncherButton ToolbarButton;
+        ToolbarControl toolbarControl;
         public static double BudgetMultiplier = 10;
         public static double ScienceBuyMultiplier = 10000;
         public static double ScienceSellMultiplier = 10000;
@@ -38,7 +42,7 @@ namespace KSPCasher
                 GameEvents.onGUIApplicationLauncherReady.Add(OnGUIApplicationLauncherReady);
                 var game = HighLogic.CurrentGame;
                 initted = true;
-               // ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(KSPCasherData).Name);
+                // ProtoScenarioModule psm = game.scenarios.Find(s => s.moduleName == typeof(KSPCasherData).Name);
                 //if (psm == null)
                 {
                     //psm = game.AddProtoScenarioModule(typeof(KSPCasherData), GameScenes.SPACECENTER);
@@ -58,7 +62,12 @@ namespace KSPCasher
                     GameEvents.onGUIRnDComplexDespawn.Remove(TechDisableEvent);
                     GameEvents.onGUIRnDComplexSpawn.Remove(HideGUI);
                     GameEvents.onGUIApplicationLauncherReady.Remove(OnGUIApplicationLauncherReady);
-                    ApplicationLauncher.Instance.RemoveModApplication(ToolbarButton);
+                    //ApplicationLauncher.Instance.RemoveModApplication(ToolbarButton);
+                    if (toolbarControl != null)
+                    {
+                        toolbarControl.OnDestroy();
+                        Destroy(toolbarControl);
+                    }
                     initted = false;
                 }
 
@@ -80,8 +89,9 @@ namespace KSPCasher
             ShowGUI = false;
         }
 
-#region GUI
+        #region GUI
         private bool stylesSetup = false;
+        bool windowPosInitted = false;
         private Rect windowPos = new Rect(580f, 40f, 1f, 1f);
         private bool ShowSettings = false;
         private bool ShowGUI = false;
@@ -114,12 +124,29 @@ namespace KSPCasher
         {
             if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
             {
+#if false
                 if (ToolbarButton == null)
                 {
                     ToolbarButton = ApplicationLauncher.Instance.AddModApplication(GUISwitch, GUISwitch,
                                     null, null, null, null,
                                     ApplicationLauncher.AppScenes.SPACECENTER,
                                     GameDatabase.Instance.GetTexture("KSPCasher/Icon", false));
+                }
+#endif
+                if (toolbarControl == null)
+                {
+                    toolbarControl = gameObject.AddComponent<ToolbarControl>();
+                    toolbarControl.AddToAllToolbars(GUISwitch, GUISwitch,
+                        ApplicationLauncher.AppScenes.SPACECENTER |
+                        ApplicationLauncher.AppScenes.MAPVIEW,
+                        "KSPCasher_NS",
+                        "kspCasherButton",
+                        "KSPCasher/PluginData/Icon_38",
+                        "KSPCasher/PluginData/Icon_24",
+                        "KSP Casher"
+                    );
+                    toolbarControl.UseBlizzy(HighLogic.CurrentGame.Parameters.CustomParams<Casher>().useBlizzy);
+
                 }
             }
         }
@@ -146,9 +173,11 @@ namespace KSPCasher
         {
             if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
                 return;
+            if (toolbarControl != null)
+                toolbarControl.UseBlizzy(HighLogic.CurrentGame.Parameters.CustomParams<Casher>().useBlizzy);
+
             GUI.skin.window.richText = true;
-            if (HighLogic.LoadedScene == GameScenes.SPACECENTER)
-            if (ShowGUI == true)
+            if (HighLogic.LoadedScene == GameScenes.SPACECENTER && ShowGUI == true)
             {
                 if (!stylesSetup)
                 {
@@ -156,11 +185,14 @@ namespace KSPCasher
                 }
 
                 GUI.skin = HighLogic.Skin;
-
-                windowPos.xMin = Screen.width - 336 - 14;
-                windowPos.yMin = Screen.height - windowPos.height - 40f;
-                windowPos.yMax = Screen.height - 40f;
-                windowPos = GUILayout.Window(
+                if (!windowPosInitted && windowPos.height > 1)
+                {
+                    windowPos.xMin = Screen.width - 336 - 14;
+                    windowPos.yMin = Screen.height - windowPos.height - 40f;
+                    windowPos.yMax = Screen.height - 40f;
+                    windowPosInitted = true;
+                }
+                windowPos = ClickThruBlocker.GUILayoutWindow(
                     typeof(KSPCasher).FullName.GetHashCode(),
                     windowPos,
                     MainGUI,
@@ -271,10 +303,10 @@ namespace KSPCasher
             }
 
             GUILayout.EndVertical();
-
+            GUI.DragWindow();
         }
 
-#endregion
+        #endregion
 
 
 
@@ -324,7 +356,7 @@ namespace KSPCasher
                 else
                 {
                     ScreenMessages.PostScreenMessage("[KSPCasher]: No budget received, you need to work on your reputation.");
-                }         
+                }
             }
         }
 
@@ -343,7 +375,7 @@ namespace KSPCasher
 
         private void Log(string msg)
         {
-            if(CasherDebug)
+            if (CasherDebug)
                 Debug.Log("[KSPCasher]: " + msg);
         }
 

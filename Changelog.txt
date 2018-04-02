@@ -14,3 +14,9 @@
 0.2.6
 	Thanks to Github user @astat for this:
 		fix for not giving budget when time acceleration is high
+
+0.2.7
+	Updated for 1.4.1
+	Added support for ClickThroughBlocker
+	Added support for ToolbarController
+	make window draggable
