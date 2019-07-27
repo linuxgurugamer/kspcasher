@@ -1,3 +1,4 @@
+
 0.2.3
 	Fixed ScenarioModule to properly save data
 	Merged in some code from @severdsolo to load one instead of every scene
@@ -23,3 +24,7 @@
 
 0.2.7.1
 	Version bump for 1.5 rebuild
+
+0.2.8
+	Added InstallChecker
+	Updated AssemblyVersion.tt
