@@ -15,7 +15,6 @@ namespace KSPCasher
     public class KSPCasher : MonoBehaviour
     {
         public static KSPCasher instance;
-        //ApplicationLauncherButton ToolbarButton;
         ToolbarControl toolbarControl;
         public static double BudgetMultiplier = 10;
         public static double ScienceBuyMultiplier = 10000;
@@ -54,7 +53,7 @@ namespace KSPCasher
 
         private void onGameStateLoad(ConfigNode node)
         {
-            if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
+            if (HighLogic.CurrentGame != null && HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
             {
                 if (initted)
                 {
@@ -62,7 +61,6 @@ namespace KSPCasher
                     GameEvents.onGUIRnDComplexDespawn.Remove(TechDisableEvent);
                     GameEvents.onGUIRnDComplexSpawn.Remove(HideGUI);
                     GameEvents.onGUIApplicationLauncherReady.Remove(OnGUIApplicationLauncherReady);
-                    //ApplicationLauncher.Instance.RemoveModApplication(ToolbarButton);
                     if (toolbarControl != null)
                     {
                         toolbarControl.OnDestroy();
@@ -83,7 +81,7 @@ namespace KSPCasher
 
         public void OnDisable()
         {
-            if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
+            if (HighLogic.CurrentGame != null && HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
                 return;
 
             ShowGUI = false;
@@ -122,17 +120,8 @@ namespace KSPCasher
 
         private void OnGUIApplicationLauncherReady()
         {
-            if (HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
+            if (HighLogic.CurrentGame != null && HighLogic.CurrentGame.Mode == Game.Modes.CAREER)
             {
-#if false
-                if (ToolbarButton == null)
-                {
-                    ToolbarButton = ApplicationLauncher.Instance.AddModApplication(GUISwitch, GUISwitch,
-                                    null, null, null, null,
-                                    ApplicationLauncher.AppScenes.SPACECENTER,
-                                    GameDatabase.Instance.GetTexture("KSPCasher/Icon", false));
-                }
-#endif
                 if (toolbarControl == null)
                 {
                     toolbarControl = gameObject.AddComponent<ToolbarControl>();
@@ -171,7 +160,7 @@ namespace KSPCasher
         //OnDraw Shows the MainGUI Window
         private void OnGUI()
         {
-            if (HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
+            if (HighLogic.CurrentGame == null || HighLogic.CurrentGame.Mode != Game.Modes.CAREER)
                 return;
             if (toolbarControl != null)
                 toolbarControl.UseBlizzy(HighLogic.CurrentGame.Parameters.CustomParams<Casher>().useBlizzy);

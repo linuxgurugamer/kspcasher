@@ -32,3 +32,6 @@ ChangeLog
 
 0.3.0
 	Updated for KSP 1.8
+
+0.3.0.1
+	Fixed NullRefs when returning to main menu
