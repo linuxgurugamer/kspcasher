@@ -35,3 +35,8 @@ ChangeLog
 
 0.3.0.1
 	Fixed NullRefs when returning to main menu
+
+0.3.0.2
+	Added AssemblyFileVersion
+	Updated version file for 1.12
+
